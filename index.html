@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pacheco Imóveis — Gerador de Publicações</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green-dark: #0A3D28;
+  --green: #028F4F;
+  --green-hover: #0A6B3C;
+  --orange: #CC7A02;
+  --cream: #F7F4EC;
+  --cream-page: #E2DCCF;
+  --text-muted: #4a5952;
+  --label-muted: #8a8069;
+  --tag-bg: rgba(2,143,79,.10);
+  --tag-border: rgba(2,143,79,.34);
+  --hairline: rgba(10,61,40,.16);
+  --hairline-soft: rgba(10,61,40,.12);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--cream-page);
+  font-family: 'Archivo', sans-serif;
+  color: var(--green-dark);
+  -webkit-font-smoothing: antialiased;
+}
+
+.eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  color: var(--green);
+  text-transform: uppercase;
+}
+
+/* ===== cabeçalho — mesma gramática da capa do sistema: rótulo, título com acento serifado, foto/logo ===== */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  padding: 48px 48px 32px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+.app-header-text { max-width: 620px; }
+.app-header-text .eyebrow { margin-bottom: 14px; }
+.app-header-title {
+  font-weight: 700;
+  font-size: 38px;
+  line-height: 1;
+  letter-spacing: -1.5px;
+  margin: 0;
+  color: var(--green-dark);
+}
+.app-header-title em {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -.5px;
+}
+.app-header-sub {
+  font-size: 14.5px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin: 14px 0 0;
+}
+.app-header-mark { height: 60px; object-fit: contain; flex-shrink: 0; }
+
+/* ===== navegação — rótulos numerados como as seções do sistema; sublinhado verde, nunca laranja ===== */
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 0 48px;
+  max-width: 1280px;
+  margin: 0 auto;
+  border-bottom: 1px solid var(--hairline);
+}
+.tab-btn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Archivo', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 16px 18px;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+}
+.tab-num {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--green);
+}
+.tab-btn:hover { color: var(--green-dark); }
+.tab-btn.active { color: var(--green-dark); border-bottom-color: var(--green); }
+
+main { max-width: 1280px; margin: 0 auto; padding: 40px 48px 80px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.module-grid {
+  display: grid;
+  grid-template-columns: minmax(360px, 480px) 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+.panel {
+  background: #fff;
+  box-shadow: 0 20px 60px rgba(10,61,40,.09);
+  padding: 40px;
+}
+
+.panel-heading { margin-bottom: 28px; }
+.panel-heading h2 {
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: -.8px;
+  margin: 8px 0 0;
+  color: var(--green-dark);
+}
+
+.form-panel { display: flex; flex-direction: column; }
+
+.field-group { display: flex; flex-direction: column; gap: 16px; }
+.field-group + .field-group {
+  border-top: 1px solid var(--hairline);
+  margin-top: 26px;
+  padding-top: 26px;
+}
+.group-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  color: var(--label-muted);
+  text-transform: uppercase;
+}
+
+.field { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
+.field-row { display: flex; gap: 14px; flex-wrap: wrap; }
+
+label {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--label-muted);
+}
+
+input[type="text"], input[type="number"], select, textarea {
+  font-family: 'Archivo', sans-serif;
+  font-size: 14px;
+  color: var(--green-dark);
+  border: 1px solid #e2ddd0;
+  background: var(--cream);
+  border-radius: 4px;
+  padding: 10px 12px;
+  width: 100%;
+}
+textarea { resize: vertical; font-family: 'Archivo', sans-serif; }
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px var(--tag-bg);
+}
+
+.hint { font-size: 12px; color: var(--label-muted); }
+
+.tag-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green-hover);
+  background: var(--tag-bg);
+  border: 1px solid var(--tag-border);
+  padding: 6px 10px 6px 14px;
+  border-radius: 999px;
+}
+.tag-pill button {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--green-hover);
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  padding: 2px;
+}
+
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1.5px dashed #cfc7b0;
+  border-radius: 4px;
+  padding: 26px;
+  color: var(--label-muted);
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.dropzone:hover, .dropzone.drag-over { border-color: var(--green); background: var(--tag-bg); }
+.dropzone-icon { font-size: 22px; color: var(--green); }
+
+.image-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.image-card {
+  position: relative;
+  width: 84px;
+  height: 84px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(10,61,40,.15);
+}
+.image-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.image-card-badge {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  background: var(--green-dark);
+  color: var(--cream);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 2px 6px;
+}
+.image-card-actions {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  background: rgba(8,32,22,.55);
+  opacity: 0;
+  transition: opacity .12s;
+  padding: 4px 0;
+}
+.image-card:hover .image-card-actions { opacity: 1; }
+.image-card-actions button {
+  appearance: none;
+  border: none;
+  background: rgba(255,255,255,.15);
+  color: #fff;
+  font-size: 11px;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.image-card-actions button:hover { background: rgba(255,255,255,.3); }
+
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 26px;
+  padding-top: 26px;
+  border-top: 1px solid var(--hairline);
+}
+
+.btn {
+  appearance: none;
+  border: none;
+  font-family: 'Archivo', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  padding: 12px 22px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.btn-primary { background: var(--green); color: #fff; }
+.btn-primary:hover { background: var(--green-hover); }
+.btn-primary:disabled { opacity: .5; cursor: default; }
+.btn-secondary {
+  background: var(--tag-bg);
+  color: var(--green-hover);
+  border: 1px solid var(--tag-border);
+  border-radius: 12px;
+}
+.btn-secondary:hover { background: var(--tag-border); }
+
+.status { font-size: 13px; color: var(--text-muted); min-height: 18px; margin-top: 10px; }
+
+.preview-panel { position: sticky; top: 24px; min-height: 400px; }
+.preview-list { display: flex; flex-wrap: wrap; gap: 24px; }
+.preview-card { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.preview-canvas {
+  width: 320px;
+  height: auto;
+  box-shadow: 0 20px 60px rgba(10,61,40,.18);
+}
+
+.app-footer {
+  text-align: center;
+  padding: 8px 48px 56px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  color: var(--label-muted);
+}
+
+@media (max-width: 900px) {
+  .module-grid { grid-template-columns: 1fr; }
+  main { padding: 24px 20px 60px; }
+  .app-header { flex-direction: column; align-items: flex-start; padding: 32px 20px 24px; }
+  .app-header-mark { height: 44px; }
+  .tabs { padding-left: 20px; padding-right: 20px; }
+  .panel { padding: 28px; }
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-text">
+    <div class="eyebrow">PACHECO IMÓVEIS · CONCÓRDIA-SC · DESDE 1986</div>
+    <h1 class="app-header-title">Gerador de <em>publicações</em></h1>
+    <p class="app-header-sub">Monte anúncios de imóveis e publicações de marca prontos para o Instagram — sempre dentro do sistema visual da Pacheco.</p>
+  </div>
+  <img src="" alt="" class="app-header-mark" id="app-header-logo">
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="property"><span class="tab-num">01</span>Anúncio de Imóvel</button>
+  <button class="tab-btn" data-tab="creative"><span class="tab-num">02</span>Criar Publicação</button>
+</nav>
+
+<main>
+  <!-- ================= MÓDULO: ANÚNCIO DE IMÓVEL ================= -->
+  <section class="tab-panel active" id="tab-property">
+    <div class="module-grid">
+      <div class="panel form-panel">
+        <div class="panel-heading">
+          <div class="eyebrow">01 — DADOS DO IMÓVEL</div>
+          <h2>Monte o anúncio</h2>
+        </div>
+
+        <div class="field-group">
+          <div class="group-label">Imóvel</div>
+          <div class="field-row">
+            <div class="field">
+              <label for="prop-tipo">Tipo</label>
+              <select id="prop-tipo">
+                <option>Locação</option>
+                <option>Venda</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="prop-categoria">Categoria</label>
+              <input id="prop-categoria" type="text" placeholder="Apartamento, Casa, Sala Comercial…">
+            </div>
+            <div class="field">
+              <label for="prop-codigo">Código do imóvel</label>
+              <input id="prop-codigo" type="text" placeholder="LAP-142">
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="prop-titulo">Título</label>
+            <input id="prop-titulo" type="text" placeholder="Edifício Centro">
+          </div>
+
+          <div class="field">
+            <label for="prop-endereco">Endereço</label>
+            <input id="prop-endereco" type="text" placeholder="Rua Marechal Deodoro, 480 · Centro · Concórdia-SC">
+          </div>
+        </div>
+
+        <div class="field-group">
+          <div class="group-label">Características</div>
+          <div class="field-row">
+            <div class="field">
+              <label for="prop-quartos">Quartos</label>
+              <input id="prop-quartos" type="number" min="0" placeholder="2">
+            </div>
+            <div class="field">
+              <label for="prop-suites">Suítes</label>
+              <input id="prop-suites" type="number" min="0" placeholder="1">
+            </div>
+            <div class="field">
+              <label for="prop-vagas">Vagas</label>
+              <input id="prop-vagas" type="number" min="0" placeholder="1">
+            </div>
+            <div class="field">
+              <label for="prop-metragem">Metragem (m²)</label>
+              <input id="prop-metragem" type="number" min="0" placeholder="68">
+            </div>
+            <div class="field">
+              <label for="prop-metragem-tipo">Tipo</label>
+              <select id="prop-metragem-tipo">
+                <option value="ÚTEIS">Úteis</option>
+                <option value="TERRENO">Terreno</option>
+                <option value="CONSTRUÍDOS">Construídos</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Características (tags)</label>
+            <div class="tag-pills" id="prop-tag-pills"></div>
+            <input id="prop-tag-input" type="text" placeholder="Digite uma característica e pressione Enter…">
+          </div>
+
+          <div class="field">
+            <label for="prop-free-text">Ou descreva em texto livre — vira tags automaticamente</label>
+            <textarea id="prop-free-text" rows="3" placeholder="Ex.: possui sacada com churrasqueira, sol da manhã e portaria 24h"></textarea>
+            <button type="button" class="btn btn-secondary" id="prop-extract-btn">Extrair tags do texto</button>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <div class="group-label">Valores &amp; contato</div>
+          <div class="field-row">
+            <div class="field">
+              <label for="prop-preco">Preço</label>
+              <input id="prop-preco" type="text" placeholder="1.600">
+            </div>
+            <div class="field">
+              <label for="prop-preco-nota">Condições / observação</label>
+              <input id="prop-preco-nota" type="text" placeholder="+ condomínio e IPTU">
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="prop-telefone">WhatsApp</label>
+              <input id="prop-telefone" type="text">
+            </div>
+            <div class="field">
+              <label for="prop-cta">Chamada / CTA</label>
+              <input id="prop-cta" type="text">
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <div class="group-label">Fotos</div>
+          <div class="field">
+            <label>Fotos do imóvel</label>
+            <div id="prop-images" class="image-manager"></div>
+            <div class="hint" id="prop-image-count"></div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn btn-primary" id="prop-generate-btn">Gerar publicação</button>
+          <button type="button" class="btn btn-secondary" id="prop-download-all-btn" style="display:none;">Baixar todas</button>
+        </div>
+        <div class="status" id="prop-status"></div>
+      </div>
+
+      <div class="panel preview-panel">
+        <div class="panel-heading">
+          <div class="eyebrow">02 — PRÉVIA</div>
+          <h2>Como vai ficar</h2>
+        </div>
+        <div class="preview-list" id="prop-preview"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= MÓDULO: CRIAR PUBLICAÇÃO ================= -->
+  <section class="tab-panel" id="tab-creative">
+    <div class="module-grid">
+      <div class="panel form-panel">
+        <div class="panel-heading">
+          <div class="eyebrow">01 — SUA IDEIA</div>
+          <h2>Crie a publicação</h2>
+        </div>
+
+        <div class="field-group">
+          <div class="group-label">Formato</div>
+          <div class="field-row">
+            <div class="field">
+              <label for="creative-format">Formato</label>
+              <select id="creative-format">
+                <option value="feed">Feed · 1080×1350</option>
+                <option value="story">Story · 1080×1920</option>
+              </select>
+            </div>
+            <div class="field" id="creative-background-row">
+              <label for="creative-background">Fundo (sem imagem)</label>
+              <select id="creative-background">
+                <option value="cream">Creme</option>
+                <option value="dark">Verde escuro</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <div class="group-label">Conteúdo</div>
+          <div class="field">
+            <label for="creative-eyebrow">Rótulo pequeno (opcional)</label>
+            <input id="creative-eyebrow" type="text" placeholder="NOSSA GENTE">
+          </div>
+
+          <div class="field">
+            <label for="creative-headline">Título — use *asteriscos* para destacar uma palavra em itálico</label>
+            <textarea id="creative-headline" rows="2" placeholder="Quarenta anos de *confiança* em Concórdia"></textarea>
+          </div>
+
+          <div class="field">
+            <label for="creative-subheadline">Texto de apoio (opcional)</label>
+            <textarea id="creative-subheadline" rows="3" placeholder="Traga a ideia da publicação em algumas frases."></textarea>
+          </div>
+
+          <div class="field">
+            <label for="creative-cta">Chamada / CTA (opcional)</label>
+            <input id="creative-cta" type="text" placeholder="Agende sua visita →">
+          </div>
+        </div>
+
+        <div class="field-group">
+          <div class="group-label">Imagem</div>
+          <div class="field">
+            <label>Imagem (opcional)</label>
+            <div id="creative-images" class="image-manager"></div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn btn-primary" id="creative-generate-btn">Gerar publicação</button>
+          <button type="button" class="btn btn-secondary" id="creative-download-btn" style="display:none;">Baixar imagem</button>
+        </div>
+        <div class="status" id="creative-status"></div>
+      </div>
+
+      <div class="panel preview-panel">
+        <div class="panel-heading">
+          <div class="eyebrow">02 — PRÉVIA</div>
+          <h2>Como vai ficar</h2>
+        </div>
+        <div class="preview-list" id="creative-preview"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="app-footer">DESDE 1986 · CRECI 000418-J · PACHECO IMÓVEIS</footer>
+
+<script src="js/assets.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/canvasRenderer.js"></script>
+<script src="js/tagExtractor.js"></script>
+<script src="js/imageManager.js"></script>
+<script src="js/propertyPost.js"></script>
+<script src="js/creativePost.js"></script>
+<script src="js/propertyForm.js"></script>
+<script src="js/creativeForm.js"></script>
+<script>
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  document.getElementById('app-header-logo').src = BRAND_ASSETS.logoColor;
+
+  initPropertyModule(document.getElementById('tab-property'));
+  initCreativeModule(document.getElementById('tab-creative'));
+</script>
+</body>
+</html>
