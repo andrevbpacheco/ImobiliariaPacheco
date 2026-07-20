@@ -112,7 +112,7 @@ function initPropertyModule(root) {
       specs: gatherSpecs(),
       tags: [...manualTags, ...extractedTags],
       priceLabel: tipo === 'Locação' ? 'ALUGUEL MENSAL' : 'VALOR DE VENDA',
-      priceValue: 'R$ ' + (formatBRLNumber(els.preco.value) || '0'),
+      priceValue: 'R$ ' + (formatBRLNumber(els.preco.value) || '0') + ',00',
       priceNote: els.precoNota.value.trim(),
       phone: els.telefone.value.trim() || THEME.phone,
       cta: els.cta.value.trim() || 'Agende sua visita →',

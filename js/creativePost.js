@@ -101,24 +101,28 @@ async function renderCreativeSlide(data) {
   const padX = 56;
   const contentW = w - padX * 2;
 
-  // topo: rótulo pequeno + logo
-  const topY = 60;
+  // topo: rótulo pequeno + logo — mesmo padrão de tamanho das publicações de imóvel
+  const padTop = 44;
+  const labelY = padTop + 15;
   if (data.eyebrow) {
-    drawSpacedText(ctx, data.eyebrow.toUpperCase(), padX, topY, {
-      font: "600 13px 'Archivo', sans-serif",
+    drawSpacedText(ctx, data.eyebrow.toUpperCase(), padX, labelY, {
+      font: "600 18px 'Archivo', sans-serif",
       color: bgIsDark ? 'rgba(255,255,255,.85)' : C.greenStructural,
-      letterSpacing: 4,
+      letterSpacing: 5,
     });
   }
-  const logoH = 44, logoW = logoH * (logo.width / logo.height);
+  const logoH = 50, logoW = logoH * (logo.width / logo.height);
   ctx.save();
   if (bgIsDark) { ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 8; ctx.shadowOffsetY = 2; }
-  ctx.drawImage(logo, w - padX - logoW, topY - 30, logoW, logoH);
+  ctx.drawImage(logo, w - padX - logoW, padTop, logoW, logoH);
   ctx.restore();
 
   // headline + subheadline ancorados na base
   const bottomPad = 72;
   let cursorY = h - bottomPad;
+
+  const GAP_SUB_CTA = 30;   // espaço entre subtítulo (ou título) e CTA
+  const GAP_TITLE_SUB = 34; // espaço entre título e subtítulo
 
   let subLines = [];
   if (data.subheadline) {
@@ -126,15 +130,16 @@ async function renderCreativeSlide(data) {
     subLines = wrapText(ctx, data.subheadline, contentW, "400 24px 'Archivo', sans-serif");
   }
   const subLineHeight = 34;
-  const subHeight = subLines.length ? subLines.length * subLineHeight + 20 : 0;
+  const subHeight = subLines.length ? subLines.length * subLineHeight : 0;
 
-  const ctaHeight = data.cta ? 60 : 0;
+  const ctaHeight = data.cta ? 34 : 0;
 
-  const headlineSize = data.format === 'story' ? 78 : 64;
+  // título sempre em uma linha só — reduz a fonte até caber na largura disponível
+  let headlineSize = data.format === 'story' ? 78 : 64;
+  if (data.headline) {
+    headlineSize = fitHeadlineOneLineSize(ctx, data.headline, contentW, headlineSize);
+  }
   const headlineLineHeight = headlineSize * 1.02;
-
-  // mede quantas linhas o headline vai ocupar (desenho em posição temporária fora da tela não é necessário: renderizamos de baixo pra cima)
-  ctx.font = `700 ${headlineSize}px 'Archivo', sans-serif`;
   const measuredLines = tokenizeAccent(data.headline || '').length ? estimateAccentLines(ctx, data.headline, contentW, headlineSize) : 0;
   const headlineHeight = measuredLines * headlineLineHeight;
 
@@ -143,15 +148,19 @@ async function renderCreativeSlide(data) {
     ctx.font = "italic 400 34px 'Instrument Serif', serif";
     ctx.fillStyle = accentColor;
     ctx.textBaseline = 'alphabetic';
-    ctx.fillText(data.cta, padX, cursorY + 34);
+    ctx.fillText(data.cta, padX, cursorY + 30);
   }
+
+  if (data.cta && (subLines.length || data.headline)) cursorY -= GAP_SUB_CTA;
 
   cursorY -= subHeight;
   if (subLines.length) {
     ctx.font = "400 24px 'Archivo', sans-serif";
     ctx.fillStyle = subColor;
-    subLines.forEach((line, i) => ctx.fillText(line, padX, cursorY + i * subLineHeight + 20));
+    subLines.forEach((line, i) => ctx.fillText(line, padX, cursorY + i * subLineHeight + 24));
   }
+
+  if (subLines.length && data.headline) cursorY -= GAP_TITLE_SUB;
 
   cursorY -= headlineHeight;
   if (data.headline) {
@@ -165,6 +174,15 @@ async function renderCreativeSlide(data) {
   }
 
   return canvas;
+}
+
+// Reduz o tamanho do título até caber em uma única linha na largura disponível.
+function fitHeadlineOneLineSize(ctx, text, maxWidth, startSize, minSize = 34) {
+  let size = startSize;
+  while (size > minSize && estimateAccentLines(ctx, text, maxWidth, size) > 1) {
+    size -= 2;
+  }
+  return size;
 }
 
 function estimateAccentLines(ctx, text, maxWidth, size) {
